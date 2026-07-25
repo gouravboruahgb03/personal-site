@@ -16,7 +16,7 @@ export default function Header() {
 
         <Link
           href="#newsletter"
-          className="bg-gradient-to-r from-sky-300 via-blue-400 to-sky-300 bg-clip-text font-bold text-transparent drop-shadow-[0_0_10px_rgba(56,132,255,0.45)] transition-opacity duration-200 hover:opacity-80"
+          className="-m-3 bg-gradient-to-r from-sky-300 via-blue-400 to-sky-300 bg-clip-text p-3 font-bold text-transparent drop-shadow-[0_0_10px_rgba(56,132,255,0.45)] transition-opacity duration-200 hover:opacity-80"
         >
           Join The Tribe
         </Link>
