@@ -16,6 +16,7 @@
 
 html {
   background: var(--bg);
+  overflow-x: hidden;
 }
 
 body {
@@ -23,6 +24,7 @@ body {
   color: var(--text-muted);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
 /* ------------------------------------------------------------------ */
