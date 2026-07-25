@@ -1,81 +1,26 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 
-const links = [
-  { href: "/", label: "Home" },
-  { href: "/writing", label: "Writing" },
-  { href: "/about", label: "About" },
-  { href: "/products", label: "Products" },
-];
-
+// Dan Koe brief: logo mark on the left, ONE link on the right. Nothing else.
 export default function Header() {
-  const [open, setOpen] = useState(false);
-
   return (
-    <header className="border-b border-black/10 dark:border-white/10">
-      <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <Link
-          href="/"
-          className="font-semibold tracking-tight"
-          onClick={() => setOpen(false)}
-        >
-          Gourav Boruah
+    <header>
+      <nav className="mx-auto flex max-w-content items-center justify-between px-6 py-6 md:px-10 md:py-8">
+        <Link href="/" aria-label="Home" className="inline-flex items-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo-g3.jpg"
+            alt="G3 — Gourav Boruah"
+            className="-mt-2 h-16 w-auto mix-blend-screen md:-mt-3 md:h-20"
+          />
         </Link>
 
-        {/* Links shown in a row on tablet/desktop */}
-        <ul className="hidden gap-8 sm:flex">
-          {links.map((link) => (
-            <li key={link.href}>
-              <Link href={link.href} className="opacity-70 hover:opacity-100">
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-
-        {/* Hamburger button, shown only on mobile */}
-        <button
-          type="button"
-          onClick={() => setOpen((value) => !value)}
-          aria-label="Toggle menu"
-          aria-expanded={open}
-          className="-mr-2 inline-flex items-center justify-center rounded p-2 sm:hidden"
+        <Link
+          href="#newsletter"
+          className="bg-gradient-to-r from-sky-300 via-blue-400 to-sky-300 bg-clip-text font-bold text-transparent drop-shadow-[0_0_10px_rgba(56,132,255,0.45)] transition-opacity duration-200 hover:opacity-80"
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            {open ? (
-              <>
-                <line x1="6" y1="6" x2="18" y2="18" />
-                <line x1="6" y1="18" x2="18" y2="6" />
-              </>
-            ) : (
-              <>
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </>
-            )}
-          </svg>
-        </button>
+          Join The Tribe
+        </Link>
       </nav>
-
-      {/* Dropdown menu, shown on mobile only when open */}
-      {open && (
-        <ul className="flex flex-col border-t border-black/10 px-6 py-2 sm:hidden dark:border-white/10">
-          {links.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="block py-2 opacity-70 hover:opacity-100"
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
     </header>
   );
 }

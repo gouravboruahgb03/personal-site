@@ -1,12 +1,12 @@
-import type { ReactNode, ElementType } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 // ---------------------------------------------------------------------------
-// Rich-text renderer
-// Posts store their body in `content` as structured JSON (ProseMirror/Tiptap
-// style). This walks that tree and renders it as real HTML elements.
+// Rich-text renderer — walks the ProseMirror/Tiptap-style JSON in `content`
+// and emits plain semantic elements. Styling comes from `.prose-post` in
+// globals.css, so the markup stays clean.
 // ---------------------------------------------------------------------------
 type Mark = { type: string; attrs?: Record<string, string> };
 type ContentNode = {
@@ -27,20 +27,10 @@ function applyMarks(text: ReactNode, marks: Mark[] | undefined, key: string) {
       case "italic":
         return <em key={k}>{acc}</em>;
       case "code":
-        return (
-          <code key={k} className="rounded bg-black/5 px-1.5 py-0.5 text-[0.9em] dark:bg-white/10">
-            {acc}
-          </code>
-        );
+        return <code key={k}>{acc}</code>;
       case "link":
         return (
-          <a
-            key={k}
-            href={mark.attrs?.href}
-            className="underline underline-offset-2 hover:opacity-70"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <a key={k} href={mark.attrs?.href} target="_blank" rel="noreferrer">
             {acc}
           </a>
         );
@@ -59,55 +49,34 @@ function renderNode(node: ContentNode, key: string): ReactNode {
     case "text":
       return applyMarks(node.text, node.marks, key);
     case "paragraph":
-      return (
-        <p key={key} className="mb-6">
-          {children}
-        </p>
-      );
+      return <p key={key}>{children}</p>;
     case "heading": {
       const level = Number(node.attrs?.level ?? 2);
-      const Tag = `h${Math.min(Math.max(level, 1), 6)}` as ElementType;
-      const size = level <= 1 ? "text-3xl" : level === 2 ? "text-2xl" : "text-xl";
-      return (
-        <Tag key={key} className={`${size} mb-4 mt-10 font-semibold leading-snug`}>
-          {children}
-        </Tag>
-      );
+      if (level <= 2) return <h2 key={key}>{children}</h2>;
+      return <h3 key={key}>{children}</h3>;
     }
     case "bulletList":
-      return (
-        <ul key={key} className="mb-6 list-disc space-y-2 pl-6">
-          {children}
-        </ul>
-      );
+      return <ul key={key}>{children}</ul>;
     case "orderedList":
-      return (
-        <ol key={key} className="mb-6 list-decimal space-y-2 pl-6">
-          {children}
-        </ol>
-      );
+      return <ol key={key}>{children}</ol>;
     case "listItem":
       return <li key={key}>{children}</li>;
     case "blockquote":
-      return (
-        <blockquote key={key} className="mb-6 border-l-4 border-black/20 pl-5 italic opacity-80 dark:border-white/20">
-          {children}
-        </blockquote>
-      );
+      return <blockquote key={key}>{children}</blockquote>;
     case "codeBlock":
       return (
-        <pre key={key} className="mb-6 overflow-x-auto rounded-lg bg-black/5 p-4 text-sm dark:bg-white/10">
+        <pre key={key}>
           <code>{children}</code>
         </pre>
       );
     case "horizontalRule":
-      return <hr key={key} className="my-10 border-black/10 dark:border-white/10" />;
+      return <hr key={key} />;
     case "hardBreak":
       return <br key={key} />;
     case "image":
       return node.attrs?.src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img key={key} src={String(node.attrs.src)} alt={String(node.attrs.alt ?? "")} className="my-8 rounded-lg" />
+        <img key={key} src={String(node.attrs.src)} alt={String(node.attrs.alt ?? "")} />
       ) : null;
     default:
       return children ? <>{children}</> : null;
@@ -117,7 +86,7 @@ function renderNode(node: ContentNode, key: string): ReactNode {
 function PostBody({ content }: { content: unknown }) {
   const doc = content as ContentNode | null;
   if (!doc || doc.type !== "doc" || !doc.content?.length) {
-    return <p className="opacity-60">This post doesn&apos;t have any content yet.</p>;
+    return <p>This post doesn&apos;t have any content yet.</p>;
   }
   return <>{renderNode(doc, "root")}</>;
 }
@@ -162,28 +131,33 @@ export default async function PostPage({ params }: { params: { slug: string } })
   if (!post) notFound();
 
   return (
-    <article className="mx-auto max-w-[680px] px-6 py-16">
-      <Link href="/writing" className="text-sm opacity-60 hover:underline">
+    <article className="mx-auto max-w-prose px-6 py-24 md:py-32">
+      <Link
+        href="/writing"
+        className="text-sm text-muted transition-colors duration-200 hover:text-white"
+      >
         &larr; Back to writing
       </Link>
 
-      <header className="mt-8">
-        <h1 className="text-4xl font-bold leading-tight tracking-tight">{post.title}</h1>
-        {post.published_at && (
-          <time className="mt-3 block text-sm opacity-60">{formatDate(post.published_at)}</time>
-        )}
+      <header className="mt-10">
+        <h1 className="h-section">{post.title}</h1>
+        <p className="meta mt-4">
+          Gourav Boruah &nbsp;&bull;&nbsp; {formatDate(post.published_at)}
+        </p>
       </header>
 
       {post.cover_image && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={post.cover_image}
-          alt=""
-          className="mt-8 w-full rounded-xl object-cover"
-        />
+        <div className="mt-10 aspect-[16/9] overflow-hidden bg-surface">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={post.cover_image}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+        </div>
       )}
 
-      <div className="mt-10 text-lg leading-8">
+      <div className="prose-post mt-12">
         <PostBody content={post.content} />
       </div>
     </article>

@@ -3,36 +3,27 @@ import Reveal from "@/components/Reveal";
 import PostCard, { type PostCardData } from "@/components/PostCard";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata = {
-  title: "Writing",
-};
-
-export default async function WritingPage() {
+export default async function WritingSection() {
   const supabase = createClient();
-  const { data: posts, error } = await supabase
+  const { data: posts } = await supabase
     .from("posts")
     .select("title, slug, excerpt, cover_image, published_at")
     .eq("status", "published")
-    .order("published_at", { ascending: false, nullsFirst: false });
+    .order("published_at", { ascending: false, nullsFirst: false })
+    .limit(6);
 
   return (
-    <section className="mx-auto max-w-content px-6 py-24 md:px-10 md:py-32">
+    <section className="mx-auto max-w-content px-6 py-24 md:px-10 md:py-40">
       <Reveal>
         <Eyebrow>The Blog</Eyebrow>
-        <h1 className="h-section mt-6">Writing.</h1>
+        <h2 className="h-section mt-6 max-w-2xl">The latest ideas.</h2>
       </Reveal>
 
-      {error && (
-        <p className="subhead mt-10 text-faint">
-          Sorry, something went wrong loading the posts.
-        </p>
-      )}
-
-      {!error && (!posts || posts.length === 0) && (
-        <p className="subhead mt-10 text-faint">No posts published yet.</p>
-      )}
-
-      {posts && posts.length > 0 && (
+      {!posts || posts.length === 0 ? (
+        <Reveal>
+          <p className="subhead mt-10 text-faint">No posts published yet.</p>
+        </Reveal>
+      ) : (
         <div className="mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
           {(posts as PostCardData[]).map((post, i) => (
             <Reveal as="div" key={post.slug} delay={(i % 3) * 80}>
