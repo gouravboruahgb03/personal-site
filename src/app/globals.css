@@ -171,6 +171,132 @@ body {
     transform 500ms ease-out;
 }
 
+/* Gentle "living" portrait — a slow float plus a soft blue glow pulse */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 26px 2px rgba(56, 189, 248, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 46px 8px rgba(56, 189, 248, 0.5);
+  }
+}
+.photo-anim {
+  animation:
+    float 5s ease-in-out infinite,
+    glow-pulse 4s ease-in-out infinite;
+}
+
+/* Slow 3D sway + float — makes a flat image feel like it turns in space */
+@keyframes float3d {
+  0%,
+  100% {
+    transform: perspective(1000px) rotateY(0deg) rotateX(0deg) translateY(0);
+  }
+  25% {
+    transform: perspective(1000px) rotateY(7deg) rotateX(-2deg) translateY(-8px);
+  }
+  50% {
+    transform: perspective(1000px) rotateY(0deg) rotateX(0deg) translateY(-14px);
+  }
+  75% {
+    transform: perspective(1000px) rotateY(-7deg) rotateX(2deg) translateY(-8px);
+  }
+}
+.animate-float3d {
+  animation: float3d 8s ease-in-out infinite;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Shatter: tiles blast outward from center, then reassemble into one image */
+/* One blast every 30s: whole -> blast -> reassemble in the first ~7s,
+   then stays whole for the rest of the cycle. */
+@keyframes shatter {
+  0%,
+  4% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  13%,
+  17% {
+    transform: translate(var(--tx, 0), var(--ty, 0)) rotate(var(--rot, 0deg))
+      scale(0.6);
+    opacity: 0.55;
+  }
+  25%,
+  100% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+.shatter-tile {
+  animation: shatter 30s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* "UNLOCK More" — glossy blue 3D button (raised cuboid) with a shine sweep */
+@keyframes btn-shine {
+  0% {
+    transform: translateX(-120%) skewX(-20deg);
+  }
+  60%,
+  100% {
+    transform: translateX(320%) skewX(-20deg);
+  }
+}
+.unlock-btn {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #4aa3ff 0%, #2563eb 55%, #1d4ed8 100%);
+  box-shadow:
+    0 6px 0 #1e3a8a,
+    0 14px 26px rgba(37, 99, 235, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease;
+}
+.unlock-btn:hover {
+  box-shadow:
+    0 6px 0 #1e3a8a,
+    0 18px 34px rgba(37, 99, 235, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.unlock-btn:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px 0 #1e3a8a,
+    0 6px 14px rgba(37, 99, 235, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.unlock-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.7) 50%,
+    transparent 100%
+  );
+  transform: translateX(-120%) skewX(-20deg);
+  animation: btn-shine 3.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .reveal.is-visible {

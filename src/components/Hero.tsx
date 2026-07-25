@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Eyebrow from "@/components/Eyebrow";
 import Reveal from "@/components/Reveal";
+import ShatterImage from "@/components/ShatterImage";
 
 export default function Hero() {
   return (
@@ -22,7 +23,7 @@ export default function Hero() {
 
           <Reveal delay={160}>
             <p className="mt-6 text-2xl font-medium text-white md:text-3xl">
-              Work less, enjoy more.
+              Work less, Enjoy more.
             </p>
           </Reveal>
 
@@ -51,14 +52,9 @@ export default function Hero() {
           </Reveal>
         </div>
 
-        {/* Right — the illustration, blended into the black canvas */}
+        {/* Right — the illustration blasts apart and reassembles */}
         <Reveal delay={200} className="justify-self-center md:justify-self-end">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/hero-figure.jpg"
-            alt=""
-            className="w-full max-w-[420px] mix-blend-screen"
-          />
+          <ShatterImage src="/hero-figure.jpg" />
         </Reveal>
       </div>
     </section>
