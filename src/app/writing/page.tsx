@@ -9,11 +9,9 @@ export const metadata = {
 
 export default async function WritingPage() {
   const supabase = createClient();
-  const { data: posts, error } = await supabase
-    .from("posts")
-    .select("title, slug, excerpt, cover_image, published_at")
-    .eq("status", "published")
-    .order("published_at", { ascending: false, nullsFirst: false });
+  // Metadata only (no body text) — safe to show everyone, includes members-only
+  // posts so guests can discover them and hit the gate.
+  const { data: posts, error } = await supabase.rpc("list_published_posts");
 
   return (
     <section className="mx-auto max-w-content px-6 py-24 md:px-10 md:py-32">

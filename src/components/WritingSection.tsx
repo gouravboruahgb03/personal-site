@@ -6,12 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 
 export default async function WritingSection() {
   const supabase = createClient();
-  const { data: posts } = await supabase
-    .from("posts")
-    .select("title, slug, excerpt, cover_image, published_at")
-    .eq("status", "published")
-    .order("published_at", { ascending: false, nullsFirst: false })
-    .limit(6);
+  const { data } = await supabase.rpc("list_published_posts");
+  const posts = ((data as PostCardData[] | null) ?? []).slice(0, 6);
 
   return (
     <section className="mx-auto max-w-content px-6 py-24 md:px-10 md:py-40">

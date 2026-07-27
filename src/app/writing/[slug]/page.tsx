@@ -93,47 +93,6 @@ function PostBody({ content }: { content: unknown }) {
 }
 
 // ---------------------------------------------------------------------------
-// Server-side content gate. For a members-only post viewed by someone who is
-// NOT signed in, we keep only enough whole top-level blocks to reveal roughly
-// `ratio` of the text, then throw the rest away BEFORE rendering. The locked
-// paragraphs are never sent to the browser — you can't find them in view-source.
-// ---------------------------------------------------------------------------
-function nodeTextLength(node: ContentNode): number {
-  if (node.type === "text") return node.text?.length ?? 0;
-  if (node.content) {
-    return node.content.reduce((sum, child) => sum + nodeTextLength(child), 0);
-  }
-  return 0;
-}
-
-function truncateContent(
-  content: unknown,
-  ratio: number,
-): { doc: ContentNode; truncated: boolean } {
-  const doc = content as ContentNode | null;
-  if (!doc || doc.type !== "doc" || !doc.content?.length) {
-    return {
-      doc: (doc ?? { type: "doc", content: [] }) as ContentNode,
-      truncated: false,
-    };
-  }
-
-  const blocks = doc.content;
-  const total = blocks.reduce((sum, b) => sum + nodeTextLength(b), 0);
-  const budget = total * ratio;
-
-  const kept: ContentNode[] = [];
-  let shown = 0;
-  for (const block of blocks) {
-    kept.push(block);
-    shown += nodeTextLength(block);
-    if (shown >= budget) break;
-  }
-
-  return { doc: { ...doc, content: kept }, truncated: kept.length < blocks.length };
-}
-
-// ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 function formatDate(value: string | null) {
@@ -152,19 +111,19 @@ type Post = {
   cover_image: string | null;
   content: unknown;
   access_level: string | null;
+  locked: boolean;
 };
 
 const SITE_URL = "https://personal-site-omega-neon.vercel.app";
 
+// The database function `get_post` does the members-only trimming itself: for a
+// logged-out guest on a members-only post it returns only the ~40% preview and
+// sets locked=true. The full body never leaves the server — not even via a
+// direct API call — so the gate can't be bypassed.
 async function getPost(slug: string): Promise<Post | null> {
   const supabase = createClient();
-  const { data } = await supabase
-    .from("posts")
-    .select("title, excerpt, published_at, cover_image, content, access_level")
-    .eq("slug", slug)
-    .eq("status", "published")
-    .maybeSingle();
-  return data as Post | null;
+  const { data } = await supabase.rpc("get_post", { post_slug: slug });
+  return (data as Post) ?? null;
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
@@ -195,20 +154,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function PostPage({ params }: { params: { slug: string } }) {
-  // Is anyone signed in? Any logged-in reader (or admin) sees the whole post.
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const post = await getPost(params.slug);
   if (!post) notFound();
 
-  // Lock only when the post is members-only AND the viewer is a guest.
-  const locked = post.access_level === "members_only" && !user;
-  const { doc, truncated } = locked
-    ? truncateContent(post.content, 0.4)
-    : { doc: post.content as ContentNode, truncated: false };
+  // `locked` comes straight from the database — it already trimmed the body
+  // for guests, so `post.content` here is only the preview when locked.
+  const locked = post.locked;
 
   return (
     <article className="mx-auto max-w-prose px-6 py-24 md:py-32">
@@ -238,12 +189,12 @@ export default async function PostPage({ params }: { params: { slug: string } })
       )}
 
       <div className="prose-post mt-12">
-        <PostBody content={doc} />
+        <PostBody content={post.content} />
       </div>
 
       {/* When locked, the rest of the post simply does not exist in this HTML —
           the gate is all that follows the preview. */}
-      {locked && truncated && <PostGate slug={params.slug} />}
+      {locked && <PostGate slug={params.slug} />}
     </article>
   );
 }
