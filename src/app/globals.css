@@ -299,6 +299,123 @@ body {
   animation: btn-shine 3.5s ease-in-out infinite;
 }
 
+/* Tiptap writing editor — distraction-free, Medium-like */
+.prose-editor {
+  min-height: 60vh;
+  color: #ffffff;
+  caret-color: #ffffff;
+}
+/* Force every element in the editor to white so nothing is ever invisible */
+.prose-editor * {
+  color: #ffffff;
+}
+/* H1 (from "# ") — the largest heading; H2/H3 inherit from .prose-post */
+.prose-editor h1 {
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 40px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0.7em 0 0.3em;
+}
+/* Make code blocks and quotes clearly visible on the black canvas */
+.prose-editor pre {
+  background: #171717;
+  border: 1px solid #2c2c2c;
+  color: #ffffff;
+}
+.prose-editor blockquote {
+  border-left: 3px solid #6b6b6b;
+  color: #ffffff;
+  font-style: italic;
+}
+.prose-editor ul {
+  list-style: disc;
+}
+.prose-editor ol {
+  list-style: decimal;
+}
+/* Spherical, white bullet markers */
+.prose-editor ul {
+  list-style-type: disc;
+}
+.prose-editor li::marker {
+  color: #ffffff;
+}
+.prose-editor:focus {
+  outline: none;
+}
+/* "Tell your story..." placeholder on the empty first line */
+.prose-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--text-faint);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Bubble menu (appears on text selection) */
+.bubble-menu {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #1a1a1a;
+  border: 1px solid #2c2c2c;
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+}
+.bubble-menu button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 5px;
+}
+.bubble-menu button:hover {
+  background: #2c2c2c;
+}
+.bubble-menu button.is-active {
+  background: #2563eb;
+  color: #ffffff;
+}
+.bubble-sep {
+  width: 1px;
+  height: 18px;
+  background: #333;
+  margin: 0 4px;
+}
+
+/* Slash "/" command menu */
+.slash-menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: #1a1a1a;
+  border: 1px solid #2c2c2c;
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+}
+.slash-item {
+  text-align: left;
+  padding: 8px 10px;
+  color: #ffffff;
+  font-size: 14px;
+  border-radius: 6px;
+}
+.slash-item:hover,
+.slash-item.is-selected {
+  background: #2c2c2c;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .reveal.is-visible {

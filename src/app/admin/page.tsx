@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import SignOutButton from "@/components/SignOutButton";
 
@@ -25,9 +26,23 @@ export default async function AdminPage() {
 
       <p className="prose-post mt-10">
         This is your private admin area. Only a logged-in user whose profile role
-        is <strong>admin</strong> can see this page. We&apos;ll build the
-        post-writing and product tools here next.
+        is <strong>admin</strong> can see this page.
       </p>
+
+      <div className="mt-8 flex flex-wrap gap-8">
+        <Link
+          href="/admin/write"
+          className="font-bold text-white underline underline-offset-4 transition-opacity hover:opacity-70"
+        >
+          Write a post &rarr;
+        </Link>
+        <Link
+          href="/admin/posts"
+          className="font-bold text-white underline underline-offset-4 transition-opacity hover:opacity-70"
+        >
+          All posts &rarr;
+        </Link>
+      </div>
     </section>
   );
 }
