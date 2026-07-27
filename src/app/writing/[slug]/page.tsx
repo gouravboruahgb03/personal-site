@@ -105,16 +105,19 @@ function formatDate(value: string | null) {
 
 type Post = {
   title: string;
+  excerpt: string | null;
   published_at: string | null;
   cover_image: string | null;
   content: unknown;
 };
 
+const SITE_URL = "https://personal-site-omega-neon.vercel.app";
+
 async function getPost(slug: string): Promise<Post | null> {
   const supabase = createClient();
   const { data } = await supabase
     .from("posts")
-    .select("title, published_at, cover_image, content")
+    .select("title, excerpt, published_at, cover_image, content")
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
@@ -123,7 +126,29 @@ async function getPost(slug: string): Promise<Post | null> {
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const post = await getPost(params.slug);
-  return { title: post ? post.title : "Post not found" };
+  if (!post) return { title: "Post not found" };
+
+  const description = post.excerpt ?? undefined;
+  const url = `${SITE_URL}/writing/${params.slug}`;
+  const images = post.cover_image ? [{ url: post.cover_image }] : undefined;
+
+  return {
+    title: post.title,
+    description,
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description,
+      url,
+      images,
+    },
+    twitter: {
+      card: post.cover_image ? "summary_large_image" : "summary",
+      title: post.title,
+      description,
+      images: post.cover_image ? [post.cover_image] : undefined,
+    },
+  };
 }
 
 export default async function PostPage({ params }: { params: { slug: string } }) {
