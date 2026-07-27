@@ -11,9 +11,31 @@ const satoshi = localFont({
   display: "swap",
 });
 
+const SITE_URL = "https://personal-site-omega-neon.vercel.app";
+const SITE_DESCRIPTION =
+  "Building AI-powered lead, content, and automation systems. Work less, enjoy more.";
+
 export const metadata: Metadata = {
-  title: "Gourav Boruah",
-  description: "Personal site",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Gourav Boruah",
+    template: "%s — Gourav Boruah",
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: "Gourav Boruah",
+    title: "Gourav Boruah",
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    images: [{ url: "/gourav.jpg" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Gourav Boruah",
+    description: SITE_DESCRIPTION,
+    images: ["/gourav.jpg"],
+  },
 };
 
 export default function RootLayout({
