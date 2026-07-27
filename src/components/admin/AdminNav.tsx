@@ -7,6 +7,7 @@ import SignOutButton from "@/components/SignOutButton";
 const links = [
   { href: "/admin/write", label: "Write" },
   { href: "/admin/posts", label: "My posts" },
+  { href: "/admin/readers", label: "Readers" },
 ];
 
 export default function AdminNav() {

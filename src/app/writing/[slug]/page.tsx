@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import PostGate from "@/components/PostGate";
 
 // ---------------------------------------------------------------------------
 // Rich-text renderer — walks the ProseMirror/Tiptap-style JSON in `content`
@@ -92,6 +93,47 @@ function PostBody({ content }: { content: unknown }) {
 }
 
 // ---------------------------------------------------------------------------
+// Server-side content gate. For a members-only post viewed by someone who is
+// NOT signed in, we keep only enough whole top-level blocks to reveal roughly
+// `ratio` of the text, then throw the rest away BEFORE rendering. The locked
+// paragraphs are never sent to the browser — you can't find them in view-source.
+// ---------------------------------------------------------------------------
+function nodeTextLength(node: ContentNode): number {
+  if (node.type === "text") return node.text?.length ?? 0;
+  if (node.content) {
+    return node.content.reduce((sum, child) => sum + nodeTextLength(child), 0);
+  }
+  return 0;
+}
+
+function truncateContent(
+  content: unknown,
+  ratio: number,
+): { doc: ContentNode; truncated: boolean } {
+  const doc = content as ContentNode | null;
+  if (!doc || doc.type !== "doc" || !doc.content?.length) {
+    return {
+      doc: (doc ?? { type: "doc", content: [] }) as ContentNode,
+      truncated: false,
+    };
+  }
+
+  const blocks = doc.content;
+  const total = blocks.reduce((sum, b) => sum + nodeTextLength(b), 0);
+  const budget = total * ratio;
+
+  const kept: ContentNode[] = [];
+  let shown = 0;
+  for (const block of blocks) {
+    kept.push(block);
+    shown += nodeTextLength(block);
+    if (shown >= budget) break;
+  }
+
+  return { doc: { ...doc, content: kept }, truncated: kept.length < blocks.length };
+}
+
+// ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 function formatDate(value: string | null) {
@@ -109,6 +151,7 @@ type Post = {
   published_at: string | null;
   cover_image: string | null;
   content: unknown;
+  access_level: string | null;
 };
 
 const SITE_URL = "https://personal-site-omega-neon.vercel.app";
@@ -117,7 +160,7 @@ async function getPost(slug: string): Promise<Post | null> {
   const supabase = createClient();
   const { data } = await supabase
     .from("posts")
-    .select("title, excerpt, published_at, cover_image, content")
+    .select("title, excerpt, published_at, cover_image, content, access_level")
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
@@ -152,8 +195,20 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function PostPage({ params }: { params: { slug: string } }) {
+  // Is anyone signed in? Any logged-in reader (or admin) sees the whole post.
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const post = await getPost(params.slug);
   if (!post) notFound();
+
+  // Lock only when the post is members-only AND the viewer is a guest.
+  const locked = post.access_level === "members_only" && !user;
+  const { doc, truncated } = locked
+    ? truncateContent(post.content, 0.4)
+    : { doc: post.content as ContentNode, truncated: false };
 
   return (
     <article className="mx-auto max-w-prose px-6 py-24 md:py-32">
@@ -183,8 +238,12 @@ export default async function PostPage({ params }: { params: { slug: string } })
       )}
 
       <div className="prose-post mt-12">
-        <PostBody content={post.content} />
+        <PostBody content={doc} />
       </div>
+
+      {/* When locked, the rest of the post simply does not exist in this HTML —
+          the gate is all that follows the preview. */}
+      {locked && truncated && <PostGate slug={params.slug} />}
     </article>
   );
 }

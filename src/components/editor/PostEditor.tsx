@@ -41,6 +41,7 @@ export default function PostEditor() {
   const [scheduledNote, setScheduledNote] = useState<string | null>(null);
   const [scheduleMode, setScheduleMode] = useState(false);
   const [scheduleAt, setScheduleAt] = useState("");
+  const [membersOnly, setMembersOnly] = useState(false);
 
   // Latest values for the save loop
   const contentRef = useRef<JSONContent | null>(null);
@@ -65,7 +66,7 @@ export default function PostEditor() {
     (async () => {
       const { data } = await supabase
         .from("posts")
-        .select("title, content, cover_image, slug, excerpt, status")
+        .select("title, content, cover_image, slug, excerpt, status, access_level")
         .eq("id", id)
         .single();
       if (!active) return;
@@ -74,6 +75,7 @@ export default function PostEditor() {
         setTitle(data.title === "Untitled" ? "" : (data.title ?? ""));
         setCover(data.cover_image ?? null);
         setExcerpt(data.excerpt ?? "");
+        setMembersOnly(data.access_level === "members_only");
         if (data.slug && !data.slug.startsWith("draft-")) setSlug(data.slug);
         if (data.status === "published") setPublishedSlug(data.slug);
         const c = (data.content as JSONContent) ?? null;
@@ -174,6 +176,7 @@ export default function PostEditor() {
       cover_image: cover,
       slug: finalSlug,
       excerpt: excerpt.trim() || null,
+      access_level: membersOnly ? "members_only" : "public",
       crosspost: shareToSocials,
       status: scheduleMode ? "scheduled" : "published",
       scheduled_at: scheduleMode ? scheduledIso : null,
@@ -348,6 +351,36 @@ export default function PostEditor() {
                 onChange={(e) => setScheduleAt(e.target.value)}
                 className="mt-3 border border-rule bg-transparent p-2 text-white [color-scheme:dark] focus:border-white focus:outline-none"
               />
+            )}
+          </div>
+
+          <div className="mt-6">
+            <span className="block text-sm text-muted">Who can read this</span>
+            <div className="mt-2 flex gap-6 text-sm text-white">
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="radio"
+                  checked={!membersOnly}
+                  onChange={() => setMembersOnly(false)}
+                  className="accent-white"
+                />
+                Everyone (public)
+              </label>
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="radio"
+                  checked={membersOnly}
+                  onChange={() => setMembersOnly(true)}
+                  className="accent-white"
+                />
+                Members only
+              </label>
+            </div>
+            {membersOnly && (
+              <p className="mt-2 text-xs text-faint">
+                Guests see a free preview (~40%), then must sign up to read the
+                rest. The locked part never leaves the server.
+              </p>
             )}
           </div>
 
