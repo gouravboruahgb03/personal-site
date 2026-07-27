@@ -29,6 +29,7 @@ export default function PostEditor() {
   const [initialContent, setInitialContent] = useState<JSONContent | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [status, setStatus] = useState<SaveStatus>("idle");
+  const [wordCount, setWordCount] = useState(0);
 
   // Publish panel state
   const [showPublish, setShowPublish] = useState(false);
@@ -259,6 +260,9 @@ export default function PostEditor() {
       <div className="mb-6 flex items-center justify-between">
         <p className="eyebrow">Write</p>
         <div className="flex items-center gap-5">
+          <span className="text-sm text-faint">
+            {wordCount} {wordCount === 1 ? "word" : "words"}
+          </span>
           {publishedSlug && (
             <a
               href={`/writing/${publishedSlug}`}
@@ -394,7 +398,11 @@ export default function PostEditor() {
         className="mb-6 w-full bg-transparent text-4xl font-bold leading-tight text-white placeholder:text-faint focus:outline-none"
       />
 
-      <WritingEditor initialContent={initialContent} onChange={onContentChange} />
+      <WritingEditor
+        initialContent={initialContent}
+        onChange={onContentChange}
+        onWordCount={setWordCount}
+      />
     </>
   );
 }

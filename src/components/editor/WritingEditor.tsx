@@ -9,12 +9,20 @@ import type { JSONContent } from "@tiptap/core";
 import SlashCommand from "./slash/SlashCommand";
 import { uploadImage } from "@/lib/uploadImage";
 
+// Count words in a chunk of plain text (ignores extra spaces/blank lines).
+function countWords(text: string) {
+  const trimmed = text.trim();
+  return trimmed ? trimmed.split(/\s+/).length : 0;
+}
+
 export default function WritingEditor({
   initialContent,
   onChange,
+  onWordCount,
 }: {
   initialContent?: JSONContent | null;
   onChange?: (json: JSONContent) => void;
+  onWordCount?: (words: number) => void;
 }) {
   const editor = useEditor({
     immediatelyRender: false, // avoid SSR hydration mismatch in Next.js
@@ -29,7 +37,11 @@ export default function WritingEditor({
       SlashCommand,
     ],
     content: initialContent ?? "",
-    onUpdate: ({ editor }) => onChange?.(editor.getJSON()),
+    onCreate: ({ editor }) => onWordCount?.(countWords(editor.getText())),
+    onUpdate: ({ editor }) => {
+      onChange?.(editor.getJSON());
+      onWordCount?.(countWords(editor.getText()));
+    },
     editorProps: {
       attributes: { class: "prose-post prose-editor focus:outline-none" },
 
