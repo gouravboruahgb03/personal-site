@@ -262,6 +262,8 @@ export default function PostEditor() {
         <div className="flex items-center gap-5">
           <span className="text-sm text-faint">
             {wordCount} {wordCount === 1 ? "word" : "words"}
+            {wordCount > 0 &&
+              ` · ${Math.max(1, Math.round(wordCount / 200))} min read`}
           </span>
           {publishedSlug && (
             <a
