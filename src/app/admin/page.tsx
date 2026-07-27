@@ -1,48 +1,7 @@
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import SignOutButton from "@/components/SignOutButton";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Admin",
-};
-
-export default async function AdminPage() {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return (
-    <section className="mx-auto max-w-content px-6 py-24 md:px-10 md:py-32">
-      <div className="flex items-center justify-between">
-        <p className="eyebrow">Admin</p>
-        <SignOutButton />
-      </div>
-
-      <h1 className="h-section mt-6">Dashboard</h1>
-      <p className="subhead mt-4">
-        You&apos;re signed in as an admin ({user?.email}).
-      </p>
-
-      <p className="prose-post mt-10">
-        This is your private admin area. Only a logged-in user whose profile role
-        is <strong>admin</strong> can see this page.
-      </p>
-
-      <div className="mt-8 flex flex-wrap gap-8">
-        <Link
-          href="/admin/write"
-          className="font-bold text-white underline underline-offset-4 transition-opacity hover:opacity-70"
-        >
-          Write a post &rarr;
-        </Link>
-        <Link
-          href="/admin/posts"
-          className="font-bold text-white underline underline-offset-4 transition-opacity hover:opacity-70"
-        >
-          All posts &rarr;
-        </Link>
-      </div>
-    </section>
-  );
+// The admin home just sends you straight to the writing page — that's where
+// you'll spend your time. The top menu bar handles jumping to "My posts".
+export default function AdminPage() {
+  redirect("/admin/write");
 }

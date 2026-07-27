@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import AdminNav from "@/components/admin/AdminNav";
 
 // This layout wraps EVERY page under /admin. It is a Server Component, so this
 // code runs on the server for every single /admin request — it can never be
@@ -34,5 +35,10 @@ export default async function AdminLayout({
     redirect("/");
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <AdminNav />
+      {children}
+    </>
+  );
 }
