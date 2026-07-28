@@ -132,7 +132,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
   const description = post.excerpt ?? undefined;
   const url = `${SITE_URL}/writing/${params.slug}`;
-  const images = post.cover_image ? [{ url: post.cover_image }] : undefined;
+  // Always give social platforms a real image: the post's cover if it has one,
+  // otherwise a decent site default (never let them scrape the tiny header logo).
+  const image = post.cover_image ?? `${SITE_URL}/gourav.jpg`;
 
   return {
     title: post.title,
@@ -142,13 +144,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       title: post.title,
       description,
       url,
-      images,
+      images: [{ url: image }],
     },
     twitter: {
-      card: post.cover_image ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title: post.title,
       description,
-      images: post.cover_image ? [post.cover_image] : undefined,
+      images: [image],
     },
   };
 }
