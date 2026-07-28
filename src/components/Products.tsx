@@ -11,31 +11,59 @@ type Product = {
   stripe_payment_link: string | null;
 };
 
+// Prices are shown in USD. Stripe's own checkout can localize the currency
+// per country (Adaptive Pricing) — the card just shows the base price.
+function formatPrice(value: number | null) {
+  if (value === null) return null;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    // Show cents only when the price isn't a whole number ($49, but $49.99).
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+  }).format(value);
+}
+
 function ProductCard({ product }: { product: Product }) {
   const href = product.stripe_payment_link ?? "#";
+  const price = formatPrice(product.price);
+
   return (
-    <a href={href} target="_blank" rel="noreferrer" className="group block">
-      <div className="aspect-[16/9] overflow-hidden bg-surface">
-        {product.image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={product.image}
-            alt={product.name}
-            className="h-full w-full object-cover transition duration-200 group-hover:brightness-[0.85]"
-          />
-        ) : (
-          <div className="h-full w-full bg-surface" />
+    <div className="group flex flex-col">
+      <a href={href} target="_blank" rel="noreferrer" className="block">
+        <div className="aspect-[16/9] overflow-hidden bg-surface">
+          {product.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={product.image}
+              alt={product.name}
+              className="h-full w-full object-cover transition duration-200 group-hover:brightness-[0.85]"
+            />
+          ) : (
+            <div className="h-full w-full bg-surface" />
+          )}
+        </div>
+      </a>
+
+      <div className="mt-6 flex items-start justify-between gap-4">
+        <h3 className="card-title">{product.name}</h3>
+        {price && (
+          <span className="card-title shrink-0 whitespace-nowrap">{price}</span>
         )}
       </div>
 
-      <h3 className="card-title mt-6">{product.name}</h3>
       {product.description && (
         <p className="mt-2 line-clamp-2 text-muted">{product.description}</p>
       )}
-      <span className="mt-4 inline-block font-bold italic text-white underline underline-offset-4">
-        Get it &rarr;
-      </span>
-    </a>
+
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-6 inline-block rounded bg-white px-6 py-2.5 text-center text-sm font-bold text-black transition-opacity hover:opacity-90"
+      >
+        Buy now
+      </a>
+    </div>
   );
 }
 
