@@ -60,8 +60,8 @@ export default function UnsubscribeClient() {
         <>
           <h1 className="h-section">Unsubscribe?</h1>
           <p className="subhead mt-4">
-            Click below to stop receiving newsletter emails. You can re-subscribe
-            anytime by signing up again.
+            Click below to stop receiving newsletter emails. You&apos;ll still be
+            able to read everything on the site.
           </p>
           <button
             type="button"
