@@ -2,6 +2,11 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AdminNav from "@/components/admin/AdminNav";
 
+// The admin area must never be indexed by search engines.
+export const metadata = {
+  robots: { index: false, follow: false },
+};
+
 // This layout wraps EVERY page under /admin. It is a Server Component, so this
 // code runs on the server for every single /admin request — it can never be
 // skipped or tampered with from the browser.

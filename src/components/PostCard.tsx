@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export type PostCardData = {
   title: string;
@@ -22,13 +23,14 @@ function formatDate(value: string | null) {
 export default function PostCard({ post }: { post: PostCardData }) {
   return (
     <Link href={`/writing/${post.slug}`} className="group block">
-      <div className="aspect-[16/9] overflow-hidden bg-surface">
+      <div className="relative aspect-[16/9] overflow-hidden bg-surface">
         {post.cover_image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={post.cover_image}
             alt=""
-            className="h-full w-full object-cover transition duration-200 group-hover:brightness-[0.85]"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition duration-200 group-hover:brightness-[0.85]"
           />
         ) : (
           <div className="h-full w-full bg-surface transition duration-200 group-hover:brightness-[0.85]" />

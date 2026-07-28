@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import PostGate from "@/components/PostGate";
@@ -180,12 +181,14 @@ export default async function PostPage({ params }: { params: { slug: string } })
       </header>
 
       {post.cover_image && (
-        <div className="mt-10 aspect-[16/9] overflow-hidden bg-surface">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+        <div className="relative mt-10 aspect-[16/9] overflow-hidden bg-surface">
+          <Image
             src={post.cover_image}
             alt=""
-            className="h-full w-full object-cover"
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 720px"
+            className="object-cover"
           />
         </div>
       )}

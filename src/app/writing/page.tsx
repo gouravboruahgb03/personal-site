@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
   title: "Writing",
+  description:
+    "Essays and ideas on automation, AI, and building a life of more freedom — by Gourav Boruah.",
 };
 
 export default async function WritingPage() {

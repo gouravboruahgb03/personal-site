@@ -3,6 +3,8 @@ import Reveal from "@/components/Reveal";
 
 export const metadata = {
   title: "About",
+  description:
+    "Gourav Boruah — building AI-powered systems for content, leads, and automation so you can work less and enjoy more.",
 };
 
 export default function AboutPage() {

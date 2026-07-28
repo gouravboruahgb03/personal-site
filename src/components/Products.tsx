@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Eyebrow from "@/components/Eyebrow";
 import Reveal from "@/components/Reveal";
 import { createClient } from "@/lib/supabase/server";
@@ -30,13 +31,14 @@ function ProductCard({ product }: { product: Product }) {
   return (
     <div className="group flex flex-col">
       <a href={href} target="_blank" rel="noreferrer" className="block">
-        <div className="aspect-[16/9] overflow-hidden bg-surface">
+        <div className="relative aspect-[16/9] overflow-hidden bg-surface">
           {product.image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={product.image}
               alt={product.name}
-              className="h-full w-full object-cover transition duration-200 group-hover:brightness-[0.85]"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover transition duration-200 group-hover:brightness-[0.85]"
             />
           ) : (
             <div className="h-full w-full bg-surface" />
