@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import NewsletterButton from "./NewsletterButton";
 
 type Post = {
   id: string;
@@ -95,6 +96,10 @@ export default function PostsList({ posts }: { posts: Post[] }) {
               >
                 Edit
               </Link>
+
+              {isPublished && (
+                <NewsletterButton postId={post.id} title={post.title} />
+              )}
 
               {isPublished ? (
                 <button
